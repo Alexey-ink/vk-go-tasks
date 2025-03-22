@@ -1,10 +1,12 @@
 package main
 
-var Commands = map[string]func(*Player, []string) string{
+import "fmt"
+
+var COMMANDS = map[string]func(*Player, []string) string{
 	"осмотреться": lookAround,
-	// "идти":        goRoom,
-	// "надеть":      take,
-	// "взять":       take,
+	"идти":        goRoom,
+	"надеть":      take,
+	"взять":       take,
 	// "применить":   apply,
 }
 
@@ -43,12 +45,51 @@ func lookAround(p *Player, args []string) string {
 		}
 	}
 
-	result += "можно пройти - "
+	result += p.CurrentRoom.getNearbyRoomsDescription()
+	return result
+}
+
+func goRoom(p *Player, args []string) string {
+	var result string
 
 	for _, room := range p.CurrentRoom.NearbyRooms {
-		result += room.Name + ", "
+		if args[0] == room.Name {
+			p.CurrentRoom = room
+
+			if room.Name == "улица" {
+				result = "на улице весна. "
+			} else if room.Name == "комната" {
+				result = "ты в своей комнате. "
+			} else if room.Name == "кухня" {
+				result = "кухня, ничего интересного. "
+			} else {
+				result = "ничего интересного. "
+			}
+
+			result += p.CurrentRoom.getNearbyRoomsDescription()
+
+		} else {
+			result = "нет пути в " + args[0]
+		}
+
 	}
 
-	result = result[:len(result)-2]
 	return result
+}
+
+func take(p *Player, args []string) string {
+	if p.BackpackOn {
+		if p.CurrentRoom.CheckItem(args[0]) {
+			*p.Inventory = append(*p.Inventory, args[0])
+			p.CurrentRoom.deleteItem(args[0])
+			return fmt.Sprintf(("предмет добавлен в инвентарь: %s"), args[0])
+		} else {
+			return "нет такого"
+		}
+	} else if args[0] == "рюкзак" {
+		p.BackpackOn = true
+		return "вы надели: рюкзак"
+	} else {
+		return "некуда класть"
+	}
 }

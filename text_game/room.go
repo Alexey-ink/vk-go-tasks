@@ -66,3 +66,26 @@ func (r *Room) CheckItem(item string) bool {
 	}
 	return false
 }
+
+func (r *Room) getNearbyRoomsDescription() string {
+	var result string
+	result += "можно пройти - "
+
+	for _, nearbyRoom := range r.NearbyRooms {
+		result += nearbyRoom.Name + ", "
+	}
+
+	if len(result) > 0 {
+		result = result[:len(result)-2]
+	}
+
+	return result
+}
+
+func (r *Room) deleteItem(item string) {
+	for _, value := range r.Furniture {
+		if value[item] {
+			value[item] = false
+		}
+	}
+}

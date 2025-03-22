@@ -18,15 +18,35 @@ func main() {
 
 	fmt.Println(player)
 
-	var command1 = handleCommand("осмотреться вокруг в лесу")
-	args := []string{}
+	var command1 = "осмотреться вокруг в "
+	answer := handleCommand(command1)
+	fmt.Println(answer)
 
-	if cmdFunc, exists := Commands[command1]; exists {
-		result := cmdFunc(player, args)
-		fmt.Println(result)
-	} else {
-		fmt.Println("Команда не распознана")
-	}
+	command2 := "идти коридор"
+	answer = handleCommand(command2)
+	fmt.Println(answer)
+
+	command3 := "идти комната"
+	answer = handleCommand(command3)
+	fmt.Println(answer)
+
+	command4 := "взять ключи"
+	answer = handleCommand(command4)
+	fmt.Println(answer)
+
+	command5 := "надеть рюкзак"
+	answer = handleCommand(command5)
+	fmt.Println(answer)
+
+	command6 := "взять ключи"
+	answer = handleCommand(command6)
+	fmt.Println(answer)
+
+	command7 := "взять ключи"
+	answer = handleCommand(command7)
+	fmt.Println(answer)
+
+	fmt.Println(player)
 
 }
 
@@ -39,11 +59,9 @@ func initGame() {
 
 	player = &Player{
 		Name:        "Alexey",
-		CurrentRoom: rooms["комната"],
+		CurrentRoom: rooms["кухня"],
 		Inventory:   &[]string{"фонарик", "очки"},
 	}
-
-	fmt.Println(player)
 
 }
 
@@ -54,10 +72,25 @@ func handleCommand(command string) string {
 	*/
 
 	commandParts := strings.Split(command, " ")
+	var args []string
 
+	if len(commandParts) > 1 {
+		args = commandParts[1:]
+	} else {
+		args = []string{}
+	}
+
+	var result string
 	fmt.Println(commandParts)
 
-	return commandParts[0]
+	if cmdFunc, exists := COMMANDS[commandParts[0]]; exists {
+		result := cmdFunc(player, args)
+		fmt.Println(result)
+	} else {
+		fmt.Println("Команда не распознана")
+	}
+
+	return result
 }
 
 func initRooms() map[string]*Room {
