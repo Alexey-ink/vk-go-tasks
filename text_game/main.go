@@ -16,37 +16,55 @@ func main() {
 
 	initGame()
 
-	fmt.Println(player)
+	//fmt.Println(MainPlayer)
 
-	var command1 = "осмотреться вокруг в "
-	answer := handleCommand(command1)
-	fmt.Println(answer)
+	// commands1 := []string{
+	// 	"осмотреться",
+	// 	"идти коридор",
+	// 	"идти комната",
+	// 	"осмотреться",
+	// 	"надеть рюкзак",
+	// 	"взять ключи",
+	// 	"взять конспекты",
+	// 	"идти коридор",
+	// 	"применить ключи дверь",
+	// 	"идти улица",
+	// }
 
-	command2 := "идти коридор"
-	answer = handleCommand(command2)
-	fmt.Println(answer)
+	commands2 := []string{
+		"осмотреться",
+		"завтракать",
+		"идти комната",
+		"идти коридор",
+		"применить ключи дверь",
+		"идти комната",
+		"осмотреться",
+		"взять ключи",
+		"надеть рюкзак",
+		"осмотреться",
+		"взять ключи",
+		"взять телефон",
+		"взять ключи",
+		"осмотреться",
+		"взять конспекты",
+		"осмотреться",
+		"идти коридор",
+		"идти кухня",
+		"осмотреться",
+		"идти коридор",
+		"идти улица",
+		"применить ключи дверь",
+		"применить телефон шкаф",
+		"применить ключи шкаф",
+		"идти улица",
+	}
 
-	command3 := "идти комната"
-	answer = handleCommand(command3)
-	fmt.Println(answer)
+	for _, command := range commands2 {
+		answer := handleCommand(command)
+		fmt.Println(answer)
+	}
 
-	command4 := "взять ключи"
-	answer = handleCommand(command4)
-	fmt.Println(answer)
-
-	command5 := "надеть рюкзак"
-	answer = handleCommand(command5)
-	fmt.Println(answer)
-
-	command6 := "взять ключи"
-	answer = handleCommand(command6)
-	fmt.Println(answer)
-
-	command7 := "взять ключи"
-	answer = handleCommand(command7)
-	fmt.Println(answer)
-
-	fmt.Println(player)
+	//fmt.Println(MainPlayer)
 
 }
 
@@ -60,8 +78,10 @@ func initGame() {
 	player = &Player{
 		Name:        "Alexey",
 		CurrentRoom: rooms["кухня"],
-		Inventory:   &[]string{"фонарик", "очки"},
+		Inventory:   &[]string{},
 	}
+
+	//fmt.Println(player)
 
 }
 
@@ -80,17 +100,16 @@ func handleCommand(command string) string {
 		args = []string{}
 	}
 
-	var result string
-	fmt.Println(commandParts)
+	//fmt.Println(commandParts)
 
 	if cmdFunc, exists := COMMANDS[commandParts[0]]; exists {
 		result := cmdFunc(player, args)
-		fmt.Println(result)
+		//fmt.Println(result)
+		return result
 	} else {
-		fmt.Println("Команда не распознана")
+		//fmt.Println("неизвестная команда")
+		return "неизвестная команда"
 	}
-
-	return result
 }
 
 func initRooms() map[string]*Room {
@@ -102,11 +121,13 @@ func initRooms() map[string]*Room {
 				"чай": true,
 			},
 		},
+		DoorOpen: true,
 	}
 
 	corridor := &Room{
 		Name:      "коридор",
 		Furniture: map[string]map[string]bool{},
+		DoorOpen:  false,
 	}
 
 	livingRoom := &Room{
@@ -120,15 +141,24 @@ func initRooms() map[string]*Room {
 				"рюкзак": true,
 			},
 		},
+		DoorOpen: true,
+	}
+
+	street := &Room{
+		Name:      "улица",
+		Furniture: map[string]map[string]bool{},
+		DoorOpen:  true,
 	}
 
 	kitchen.NearbyRooms = []*Room{corridor}
-	corridor.NearbyRooms = []*Room{kitchen, livingRoom}
+	corridor.NearbyRooms = []*Room{kitchen, livingRoom, street}
 	livingRoom.NearbyRooms = []*Room{corridor}
+	street.NearbyRooms = []*Room{corridor}
 
 	return map[string]*Room{
 		"кухня":   kitchen,
 		"коридор": corridor,
 		"комната": livingRoom,
+		"улица":   street,
 	}
 }

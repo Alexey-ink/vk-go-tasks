@@ -6,6 +6,7 @@ type Room struct {
 	Name        string
 	NearbyRooms []*Room
 	Furniture   map[string]map[string]bool
+	DoorOpen    bool
 }
 
 func (r Room) String() string {
@@ -70,6 +71,11 @@ func (r *Room) CheckItem(item string) bool {
 func (r *Room) getNearbyRoomsDescription() string {
 	var result string
 	result += "можно пройти - "
+
+	if r.Name == "улица" {
+		result += "домой"
+		return result
+	}
 
 	for _, nearbyRoom := range r.NearbyRooms {
 		result += nearbyRoom.Name + ", "
