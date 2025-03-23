@@ -5,13 +5,13 @@ import "fmt"
 type Player struct {
 	Name        string
 	CurrentRoom *Room
-	Inventory   *[]string
+	Inventory   []string
 	BackpackOn  bool
 }
 
-func (p Player) String() string {
+func (p *Player) String() string {
 	var ItemStr string
-	for i, v := range *p.Inventory {
+	for i, v := range p.Inventory {
 		if i > 0 {
 			ItemStr += ", "
 		}
@@ -21,7 +21,7 @@ func (p Player) String() string {
 }
 
 func (p *Player) CheckItem(item string) bool {
-	for _, v := range *p.Inventory {
+	for _, v := range p.Inventory {
 		if v == item {
 			return true
 		}

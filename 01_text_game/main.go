@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -11,38 +13,33 @@ func main() {
 
 	initGame()
 
-	commands := []string{
-		"осмотреться",
-		"завтракать",
-		"идти комната",
-		"идти коридор",
-		"применить ключи дверь",
-		"идти комната",
-		"осмотреться",
-		"взять ключи",
-		"надеть рюкзак",
-		"осмотреться",
-	}
-
-	for _, command := range commands {
-		answer := handleCommand(command)
-		fmt.Printf("[%s]\n", command)
-		fmt.Println(answer)
-		fmt.Println()
-	}
-
+	fmt.Printf("Welcome to the game!\n\n")
 	fmt.Println(player)
 
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Println("Введите команду:")
+		if !scanner.Scan() {
+			break
+		}
+		command := scanner.Text()
+		answer := handleCommand(command)
+		fmt.Printf("[%s]\n\n", answer)
+
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Ошибка при чтении ввода:", err)
+	}
 }
 
 func initGame() {
-
 	rooms := initRooms()
 
 	player = &Player{
 		Name:        "Alexey",
 		CurrentRoom: rooms["кухня"],
-		Inventory:   &[]string{},
+		Inventory:   []string{},
 	}
 }
 
@@ -50,6 +47,18 @@ func handleCommand(command string) string {
 
 	commandParts := strings.Split(command, " ")
 	var args []string
+
+	if len(commandParts) == 0 || len(commandParts) > 3 {
+		return "неизвестная команда"
+	}
+
+	if commandParts[0] == "осмотреться" && len(commandParts) > 1 {
+		return "неизвестная команда"
+	}
+
+	if commandParts[0] != "применить" && len(commandParts) > 2 {
+		return "неизвестная команда"
+	}
 
 	if len(commandParts) > 1 {
 		args = commandParts[1:]
@@ -66,9 +75,9 @@ func handleCommand(command string) string {
 }
 
 func initRooms() map[string]*Room {
-
 	kitchen := &Room{
-		Name: "кухня",
+		Name:        "кухня",
+		Description: "кухня, ничего интересного. ",
 		Furniture: map[string]map[string]bool{
 			"стол": {
 				"чай": true,
@@ -78,13 +87,15 @@ func initRooms() map[string]*Room {
 	}
 
 	corridor := &Room{
-		Name:      "коридор",
-		Furniture: map[string]map[string]bool{},
-		DoorOpen:  false,
+		Name:        "коридор",
+		Description: "ничего интересного. ",
+		Furniture:   map[string]map[string]bool{},
+		DoorOpen:    false,
 	}
 
 	livingRoom := &Room{
-		Name: "комната",
+		Name:        "комната",
+		Description: "ты в своей комнате. ",
 		Furniture: map[string]map[string]bool{
 			"стол": {
 				"ключи":     true,
@@ -98,9 +109,10 @@ func initRooms() map[string]*Room {
 	}
 
 	street := &Room{
-		Name:      "улица",
-		Furniture: map[string]map[string]bool{},
-		DoorOpen:  true,
+		Name:        "улица",
+		Description: "на улице весна. ",
+		Furniture:   map[string]map[string]bool{},
+		DoorOpen:    true,
 	}
 
 	kitchen.NearbyRooms = []*Room{corridor}

@@ -1,15 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Room struct {
 	Name        string
+	Description string
 	NearbyRooms []*Room
 	Furniture   map[string]map[string]bool
 	DoorOpen    bool
 }
 
-func (r Room) String() string {
+func (r *Room) String() string {
 	var ItemStr string
 	for key, value := range r.Furniture {
 		ItemStr += key + ": ["
@@ -91,7 +95,33 @@ func (r *Room) getNearbyRoomsDescription() string {
 func (r *Room) deleteItem(item string) {
 	for _, value := range r.Furniture {
 		if value[item] {
-			value[item] = false
+			delete(value, item)
 		}
 	}
+}
+
+func (r *Room) getNotEmptyFurnitureKeys() []string {
+
+	var result []string
+
+	for key, _ := range r.Furniture {
+		if !r.FurnitureIsEmpty(key) {
+			result = append(result, key)
+		}
+	}
+	sort.Strings(result)
+	return result
+}
+
+func (r *Room) getItemsInFurniture(furniture string) []string {
+	var result []string
+
+	for item, exists := range r.Furniture[furniture] {
+		if exists {
+			result = append(result, item)
+		}
+	}
+
+	sort.Strings(result)
+	return result
 }
