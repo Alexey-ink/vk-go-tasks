@@ -8,30 +8,10 @@ import (
 var player *Player
 
 func main() {
-	/*
-		в этой функции можно ничего не писать,
-		но тогда у вас не будет работать через go run main.go
-		очень круто будет сделать построчный ввод команд тут, хотя это и не требуется по заданию
-	*/
 
 	initGame()
 
-	//fmt.Println(MainPlayer)
-
-	// commands1 := []string{
-	// 	"осмотреться",
-	// 	"идти коридор",
-	// 	"идти комната",
-	// 	"осмотреться",
-	// 	"надеть рюкзак",
-	// 	"взять ключи",
-	// 	"взять конспекты",
-	// 	"идти коридор",
-	// 	"применить ключи дверь",
-	// 	"идти улица",
-	// }
-
-	commands2 := []string{
+	commands := []string{
 		"осмотреться",
 		"завтракать",
 		"идти комната",
@@ -42,36 +22,20 @@ func main() {
 		"взять ключи",
 		"надеть рюкзак",
 		"осмотреться",
-		"взять ключи",
-		"взять телефон",
-		"взять ключи",
-		"осмотреться",
-		"взять конспекты",
-		"осмотреться",
-		"идти коридор",
-		"идти кухня",
-		"осмотреться",
-		"идти коридор",
-		"идти улица",
-		"применить ключи дверь",
-		"применить телефон шкаф",
-		"применить ключи шкаф",
-		"идти улица",
 	}
 
-	for _, command := range commands2 {
+	for _, command := range commands {
 		answer := handleCommand(command)
+		fmt.Printf("[%s]\n", command)
 		fmt.Println(answer)
+		fmt.Println()
 	}
 
-	//fmt.Println(MainPlayer)
+	fmt.Println(player)
 
 }
 
 func initGame() {
-	/*
-		эта функция инициализирует игровой мир и принимае
-	*/
 
 	rooms := initRooms()
 
@@ -80,16 +44,9 @@ func initGame() {
 		CurrentRoom: rooms["кухня"],
 		Inventory:   &[]string{},
 	}
-
-	//fmt.Println(player)
-
 }
 
 func handleCommand(command string) string {
-	/*
-		данная функция принимает команду от "пользователя"
-		и наверняка вызывает какой-то другой метод или функцию у "мира" - списка комнат
-	*/
 
 	commandParts := strings.Split(command, " ")
 	var args []string
@@ -100,14 +57,10 @@ func handleCommand(command string) string {
 		args = []string{}
 	}
 
-	//fmt.Println(commandParts)
-
 	if cmdFunc, exists := COMMANDS[commandParts[0]]; exists {
 		result := cmdFunc(player, args)
-		//fmt.Println(result)
 		return result
 	} else {
-		//fmt.Println("неизвестная команда")
 		return "неизвестная команда"
 	}
 }
