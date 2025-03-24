@@ -8,6 +8,7 @@ import (
 )
 
 var player *Player
+var UnknownCommandMessage = "неизвестная команда"
 
 func main() {
 
@@ -49,15 +50,15 @@ func handleCommand(command string) string {
 	var args []string
 
 	if len(commandParts) == 0 || len(commandParts) > 3 {
-		return "неизвестная команда"
+		return UnknownCommandMessage
 	}
 
 	if commandParts[0] == "осмотреться" && len(commandParts) > 1 {
-		return "неизвестная команда"
+		return UnknownCommandMessage
 	}
 
 	if commandParts[0] != "применить" && len(commandParts) > 2 {
-		return "неизвестная команда"
+		return UnknownCommandMessage
 	}
 
 	if len(commandParts) > 1 {
@@ -66,11 +67,17 @@ func handleCommand(command string) string {
 		args = []string{}
 	}
 
-	if cmdFunc, exists := COMMANDS[commandParts[0]]; exists {
-		result := cmdFunc(player, args)
-		return result
-	} else {
-		return "неизвестная команда"
+	switch commandParts[0] {
+	case "осмотреться":
+		return player.lookAround()
+	case "идти":
+		return player.goRoom(args)
+	case "надеть", "взять":
+		return player.take(args)
+	case "применить":
+		return player.apply(args)
+	default:
+		return UnknownCommandMessage
 	}
 }
 

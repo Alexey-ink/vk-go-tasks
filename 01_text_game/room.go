@@ -104,7 +104,7 @@ func (r *Room) getNotEmptyFurnitureKeys() []string {
 
 	var result []string
 
-	for key, _ := range r.Furniture {
+	for key := range r.Furniture {
 		if !r.FurnitureIsEmpty(key) {
 			result = append(result, key)
 		}
