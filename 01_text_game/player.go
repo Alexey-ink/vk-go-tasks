@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -10,6 +11,7 @@ type Player struct {
 	CurrentRoom *Room
 	Inventory   []string
 	BackpackOn  bool
+	RoomTasks   map[string]*Room
 }
 
 func (p *Player) String() string {
@@ -36,29 +38,11 @@ func (p *Player) lookAround() string {
 	var builder strings.Builder
 
 	if !p.CurrentRoom.IsEmpty() {
+		builder.WriteString(p.CurrentRoom.Description)
+		builder.WriteString(p.CurrentRoom.getItemsDescription())
 
-		if p.CurrentRoom.Name == "кухня" {
-			builder.WriteString("ты находишься на кухне, ")
-		}
-
-		keys := p.CurrentRoom.getNotEmptyFurnitureKeys()
-
-		for _, fur := range keys {
-			builder.WriteString("на " + fur + "е: ") // на столе, на стуле
-
-			items := p.CurrentRoom.getItemsInFurniture(fur)
-
-			for _, item := range items {
-				builder.WriteString(item + ", ")
-			}
-		}
-
-		if p.CurrentRoom.Name == "кухня" {
-			builder.WriteString("надо ")
-			if !p.BackpackOn {
-				builder.WriteString("собрать рюкзак и ")
-			}
-			builder.WriteString("идти в универ. ")
+		if !p.IsEmptyTasks() && p.AvailableTasks(p.CurrentRoom) {
+			builder.WriteString(p.getTasks())
 		} else {
 			resultStr := builder.String()
 			if len(resultStr) >= 2 {
@@ -68,6 +52,7 @@ func (p *Player) lookAround() string {
 			builder.WriteString(resultStr)
 			builder.WriteString(". ")
 		}
+
 	} else {
 		builder.WriteString("пустая комната. ")
 	}
@@ -77,22 +62,21 @@ func (p *Player) lookAround() string {
 }
 
 func (p *Player) goRoom(args []string) string {
-	var result string
-
+	var result strings.Builder
 	for _, room := range p.CurrentRoom.NearbyRooms {
-		if args[0] == room.Name {
-			if room.Name == "улица" && !p.CurrentRoom.DoorOpen {
-				return "дверь закрыта"
-			}
-			p.CurrentRoom = room
-			result += room.Description
-			result += p.CurrentRoom.getNearbyRoomsDescription()
-			return result
-
+		if !(args[0] == room.Name) {
+			continue
 		}
+		if room.Name == "улица" && !p.CurrentRoom.DoorOpen {
+			return "дверь закрыта"
+		}
+		p.CurrentRoom = room
+		result.WriteString(room.EntryDescription)
+		result.WriteString(p.CurrentRoom.getNearbyRoomsDescription())
+		return result.String()
 	}
-
-	return result + "нет пути в " + args[0]
+	result.WriteString("нет пути в " + args[0])
+	return result.String()
 }
 
 func (p *Player) take(args []string) string {
@@ -109,25 +93,66 @@ func (p *Player) take(args []string) string {
 	if args[0] == "рюкзак" {
 		p.BackpackOn = true
 		p.CurrentRoom.deleteItem(args[0])
+		delete(p.RoomTasks, "собрать рюкзак")
 		return "вы надели: рюкзак"
-	} else {
-		return "некуда класть"
 	}
+	return "некуда класть"
 }
 
 func (p *Player) apply(args []string) string {
+	const NotApplicable = "не к чему применить"
+
 	if !p.CheckItem(args[0]) {
 		return "нет предмета в инвентаре - " + args[0]
 	}
 
 	if args[0] != "ключи" || p.CurrentRoom.Name != "коридор" {
-		return "не к чему применить"
+		return NotApplicable
 	}
 
 	if args[1] != "дверь" {
-		return "не к чему применить"
+		return NotApplicable
 	}
-
 	p.CurrentRoom.DoorOpen = true
 	return "дверь открыта"
+}
+
+func (p *Player) getTasks() string {
+	var builder strings.Builder
+	ActiveTasksCount := len(p.RoomTasks)
+
+	builder.WriteString("надо ")
+
+	keys := make([]string, 0, len(p.RoomTasks))
+	for key := range p.RoomTasks {
+		keys = append(keys, key)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] > keys[j]
+	})
+
+	i := 1
+	for _, task := range keys {
+		if i == ActiveTasksCount && ActiveTasksCount != 1 {
+			builder.WriteString(" и ")
+		}
+		builder.WriteString(task)
+		i++
+	}
+	builder.WriteString(". ")
+	return builder.String()
+}
+
+func (p *Player) IsEmptyTasks() bool {
+	return len(p.RoomTasks) == 0
+}
+
+func (p *Player) AvailableTasks(r *Room) bool {
+	for _, value := range p.RoomTasks {
+		if value.Name == r.Name {
+			return true
+		}
+	}
+	return false
 }

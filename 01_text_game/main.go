@@ -8,10 +8,10 @@ import (
 )
 
 var player *Player
-var UnknownCommandMessage = "неизвестная команда"
+
+const UnknownCommandMessage = "неизвестная команда"
 
 func main() {
-
 	initGame()
 
 	fmt.Printf("Welcome to the game!\n\n")
@@ -41,11 +41,14 @@ func initGame() {
 		Name:        "Alexey",
 		CurrentRoom: rooms["кухня"],
 		Inventory:   []string{},
+		RoomTasks: map[string]*Room{
+			"собрать рюкзак": rooms["кухня"],
+			"идти в универ":  rooms["кухня"],
+		},
 	}
 }
 
 func handleCommand(command string) string {
-
 	commandParts := strings.Split(command, " ")
 	var args []string
 
@@ -83,43 +86,44 @@ func handleCommand(command string) string {
 
 func initRooms() map[string]*Room {
 	kitchen := &Room{
-		Name:        "кухня",
-		Description: "кухня, ничего интересного. ",
-		Furniture: map[string]map[string]bool{
+		Name:             "кухня",
+		Description:      "ты находишься на кухне, ",
+		EntryDescription: "кухня, ничего интересного. ",
+		Furniture: map[string][]string{
 			"стол": {
-				"чай": true,
+				"чай",
 			},
 		},
 		DoorOpen: true,
 	}
 
 	corridor := &Room{
-		Name:        "коридор",
-		Description: "ничего интересного. ",
-		Furniture:   map[string]map[string]bool{},
-		DoorOpen:    false,
+		Name:             "коридор",
+		EntryDescription: "ничего интересного. ",
+		Furniture:        map[string][]string{},
+		DoorOpen:         false,
 	}
 
 	livingRoom := &Room{
-		Name:        "комната",
-		Description: "ты в своей комнате. ",
-		Furniture: map[string]map[string]bool{
+		Name:             "комната",
+		EntryDescription: "ты в своей комнате. ",
+		Furniture: map[string][]string{
 			"стол": {
-				"ключи":     true,
-				"конспекты": true,
+				"ключи",
+				"конспекты",
 			},
 			"стул": {
-				"рюкзак": true,
+				"рюкзак",
 			},
 		},
 		DoorOpen: true,
 	}
 
 	street := &Room{
-		Name:        "улица",
-		Description: "на улице весна. ",
-		Furniture:   map[string]map[string]bool{},
-		DoorOpen:    true,
+		Name:             "улица",
+		EntryDescription: "на улице весна. ",
+		Furniture:        map[string][]string{},
+		DoorOpen:         true,
 	}
 
 	kitchen.NearbyRooms = []*Room{corridor}
